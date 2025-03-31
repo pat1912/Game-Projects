@@ -1,0 +1,76 @@
+Rules for Code Change Requests
+==============================
+
+Purpose
+-------
+This document outlines the standardized format for requesting and applying code changes in the "Tank Battle Blitz" project. The format is designed to be clear, consistent, and easy to follow, ensuring that changes can be applied manually with confidence and potentially automated in the future. It supports a variety of code modifications, including changes to functions, constants, import/include lines, and other code elements.
+
+Format for Change Requests
+--------------------------
+Each change request will be documented in a "Change Document" with the following structure:
+
+1. Update Title and Version
+   - A brief title and version number for the update (e.g., "Update 1.0.3 - New Enemy Type and Player Controls").
+   - Includes the date for reference.
+
+2. Changes List
+   Each change will include:
+   - Description: A short explanation of what the change does.
+   - Command Line: A structured line specifying the action, file, and details of the change.
+   - Code Block (if applicable): The exact code to add, replace, or use for the entire file, provided in a markdown code block.
+   - Separate Copy Area (for line changes): For add_line, replace_line, or remove_line actions, the affected line(s) will also be provided in a separate copyable block.
+   - Dependencies (if applicable): Notes on any changes that must be applied first.
+
+3. Checklist
+   - A list of all changes in the update to track completion (e.g., "- [ ] Added new enemy type in js/logic.js").
+
+4. Notes
+   - Extra tips or reminders (e.g., "Save all files after applying changes").
+
+Command Line Structure
+----------------------
+The command line follows this format:
+ACTION: action_type | FILE: filepath | [TARGET: target_spec] | [AFTER: after_spec]
+
+- ACTION: action_type
+  Specifies the type of change to make. Possible values:
+  - replace_function: Replace an entire function with new code.
+  - add_function: Add a new function after a specified function.
+  - remove_function: Remove an entire function.
+  - add_line: Add a new line after a specified line or at the end of the file.
+  - replace_line: Replace a specific line with new code.
+  - remove_line: Remove a specific line.
+  - replace_file: Replace the entire file with new content (used for files under 200 lines).
+
+- FILE: filepath
+  The path to the file to modify (e.g., js/logic.js, index.html).
+
+- TARGET: target_spec (used with replace_function, remove_function, replace_line, remove_line)
+  Identifies what to modify or remove:
+  - For functions: The function name (e.g., spawnEnemies).
+  - For lines: The exact text of the line to target (e.g., <script src="old.js"></script>).
+
+- AFTER: after_spec (used with add_function, add_line)
+  Specifies where to insert the new code:
+  - For add_function: The name of the function after which to add the new function (e.g., getPosition).
+  - For add_line: The exact text of the line after which to add the new line, or "EOF" to add at the end of the file (e.g., "const MAX_SPEED = 10;" or "EOF").
+
+- Code Block (used with replace_function, add_function, add_line, replace_line, replace_file)
+  The new code to add, replace with, or use for the entire file, provided in a markdown code block (e.g., ```javascript ... ```). Not needed for remove_function or remove_line.
+
+- Separate Copy Area (used with add_line, replace_line, remove_line)
+  For line-based changes, the code or line text will also be provided in a separate copyable block prefixed with "Copy this:" to ensure easy access.
+
+Special Rule for Small Files
+----------------------------
+- If a file is less than 200 lines long, the entire file will be provided in a single Code Block under the action "replace_file", rather than specifying individual lines or functions. This simplifies updates by allowing you to replace the whole file content in one step.
+
+Examples
+--------
+
+Example 1: Adding a Constant
+Description: Add a new constant to js/constants.js at the end of the file.
+Command Line: ACTION: add_line | FILE: js/constants.js | AFTER: "EOF"
+Code Block:
+```javascript
+const NEW_CONSTANT = "value";

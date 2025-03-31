@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tank Game</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #888; 
+            font-family: Arial, sans-serif; 
+        }
+        #gameCanvas { 
+            background-color: #555; 
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        #hud { 
+            position: absolute; 
+            top: 10px; 
+            left: 10px; 
+            color: white; 
+            font-size: 20px; 
+            z-index: 10;
+        }
+        #gameOver { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background-color: rgba(0,0,0,0.8); 
+            padding: 30px; 
+            border-radius: 10px;
+            color: white; 
+            font-size: 24px; 
+            text-align: center; 
+            display: none; 
+            z-index: 20;
+        }
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 15;
+        }
+        #gameTitle {
+            color: #ffcc00;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+        }
+        .button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 24px;
+            margin: 20px 0;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        #instructions {
+            color: white;
+            max-width: 600px;
+            text-align: center;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        #versionInfo {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+        #controls {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            width: 80%;
+            max-width: 500px;
+        }
+        table {
+            width: 100%;
+            color: white;
+            border-collapse: collapse;
+        }
+        td {
+            padding: 8px;
+            text-align: left;
+        }
+        .key {
+            background-color: #333;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-right: 10px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="hud">Health: <span id="healthDisplay">100</span> | Score: <span id="scoreDisplay">0</span> | Enemies: <span id="enemyCountDisplay">0</span>/20</div>
+    
+    <div id="gameOver">
+        <h2>Game Over</h2>
+        <p>Final Score: <span id="finalScore">0</span></p>
+        <button class="button" onclick="location.reload()">Play Again</button>
+    </div>
+    
+    <div id="startScreen">
+        <h1 id="gameTitle">TANK BATTLE</h1>
+        
+        <div id="instructions">
+            <p>Command your tank through an enemy-filled battlefield. Destroy all enemies to complete the mission!</p>
+            
+            <div id="controls">
+                <h3>Controls:</h3>
+                <table>
+                    <tr>
+                        <td><span class="key">↑</span></td>
+                        <td>Move Forward</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">↓</span></td>
+                        <td>Move Backward</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">←</span></td>
+                        <td>Rotate Left</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">→</span></td>
+                        <td>Rotate Right</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Space</span></td>
+                        <td>Fire Weapon</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <p>Your tank barrel will automatically aim at the nearest enemy!</p>
+            <p>Collect health pickups from destroyed enemies to survive longer.</p>
+        </div>
+        
+        <button id="startButton" class="button">Start Game</button>
+        
+        <div id="versionInfo">Version <span id="gameVersion">1.0.0</span></div>
+        
+        <!-- Add a version display in the top for better visibility -->
+        <div style="position: absolute; top: 10px; right: 10px; color: white; font-size: 16px;">
+            v<span id="versionDisplay">1.0.0</span>
+        </div>
+    </div>
+
+    <!-- Import main module and other script modules -->
+	<script src="game-bundle.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+# Tank Battle Blitz - Requested Changes
+# Last Updated: March 13, 2025
+# Current Version: 1.0.2
+
+1. Optimizing Collisions
+   - Status: Done (Version 1.0.1)
+   - Description: Improve collision detection efficiency using a grid-based spatial partitioning system.
+
+2. Spicing Up the Enemy AI
+   - Status: Pending
+   - Description: Add variety to enemy behaviors to make them more challenging and interesting.
+
+3. Adding a Start Screen
+   - Status: In Progress (Logic Works, Visuals Need Improvement)
+   - Description: Create a start screen with game information, instructions, and a "Start" button to begin the game. Logic is implemented (game starts on button click, uses gameState), but the visual design is still basic and requires further enhancement.
+
+4. Software Versioning
+   - Status: In Progress (Currently 1.0.2)
+   - Description: Implement a versioning system starting at 1.0.0, displayed on the start screen. Increment minor version for each update (e.g., 1.0.1). Discuss middle number changes (e.g., 1.1.0) for major updates together.
+
+5. Player Tank Color Selection
+   - Status: Pending
+   - Description: Add three color options for the player tank on the start screen, distinct from enemy colors. Adjust enemy colors if needed.
+
+6. Break the Long File into Smaller Ones
+   - Status: Done (Version 1.0.2)
+   - Description: Divide the single large HTML file into smaller, modular files for better organization and maintainability.
