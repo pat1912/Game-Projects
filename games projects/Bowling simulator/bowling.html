@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classy Bowling Simulator</title>
+    <style>
+        /* Basic Reset & Body Style */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #e74c3c; /* Reddish color */
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Setup Area */
+        #setup-area {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #setup-area label, #setup-area input, #setup-area button {
+            margin: 5px;
+            padding: 8px 12px;
+            font-size: 1em;
+        }
+
+        #setup-area input {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #setup-area button {
+            background-color: #3498db; /* Blue */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #setup-area button:hover {
+            background-color: #2980b9;
+        }
+
+        #start-game-button {
+            background-color: #2ecc71; /* Green */
+        }
+
+        #start-game-button:hover {
+            background-color: #27ae60;
+        }
+
+        #player-list {
+            list-style: none;
+            padding: 10px 0 0 0;
+        }
+        #player-list li {
+            background-color: #ecf0f1;
+            padding: 5px 10px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+        }
+
+
+        /* Game Area */
+        #game-area {
+            display: none; /* Initially hidden */
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+
+        /* Scoreboard */
+        #scoreboard {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #000080; /* Dark Blue */
+            color: #FFFF00; /* Yellow Text */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 0.9em; /* Adjust overall font size */
+            table-layout: fixed; /* Ensure columns are evenly spaced */
+        }
+
+        #scoreboard th, #scoreboard td {
+            border: 2px solid #FFFF00; /* Yellow borders */
+            text-align: center;
+            padding: 2px; /* Reduced padding */
+            height: 60px; /* Fixed height for rows */
+            position: relative; /* For positioning inner elements */
+        }
+
+        #scoreboard th {
+            background-color: #0000CD; /* Medium Blue */
+            padding: 8px 2px;
+            height: auto;
+        }
+
+        #scoreboard .player-name-col {
+            width: 100px; /* Fixed width for player names */
+            background-color: #0000CD;
+            font-size: 1.1em;
+            vertical-align: middle;
+        }
+
+        #scoreboard .total-score-col {
+            width: 70px; /* Fixed width for total score */
+            font-size: 1.4em; /* Larger font for total */
+            vertical-align: middle;
+        }
+
+        .frame-col {
+             width: auto; /* Let frames take remaining space */
+        }
+
+        .frame-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        .frame-rolls {
+            display: flex;
+            justify-content: flex-end;
+            padding: 1px;
+            height: 20px; /* Height for rolls area */
+            font-size: 0.9em; /* Smaller font for rolls */
+        }
+
+        .roll-box {
+            border: 1px solid #FFFF00;
+            width: 18px; /* Fixed width for roll boxes */
+            height: 18px; /* Fixed height for roll boxes */
+            line-height: 16px; /* Vertically center text */
+            margin-left: 1px;
+            background-color: #4682B4; /* Steel Blue */
+            color: #FFFFFF; /* White text for rolls */
+            font-weight: normal;
+        }
+        .roll-box.tenth-extra {
+            background-color: #5F9EA0; /* Cadet Blue */
+        }
+
+
+        .frame-score {
+            font-size: 1.5em; /* Larger font for frame score */
+            line-height: 35px; /* Center score in remaining space */
+            height: 38px; /* Height for score area */
+        }
+
+        .current-player td {
+             background-color: rgba(255, 255, 0, 0.15); /* Subtle yellow highlight */
+        }
+
+        .current-frame {
+            outline: 3px solid red; /* Highlight current frame */
+            outline-offset: -3px;
+        }
+
+
+        /* Controls Area */
+        #controls-area {
+            text-align: center;
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #throw-button {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            background-color: #e74c3c; /* Red */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 15px;
+        }
+
+        #throw-button:hover {
+            background-color: #c0392b;
+        }
+        #throw-button:disabled {
+             background-color: #bdc3c7;
+             cursor: not-allowed;
+        }
+
+        #status-message {
+            font-weight: bold;
+            min-height: 20px; /* Prevent layout shift */
+            color: #2c3e50;
+        }
+
+        /* Pin Display */
+        #pin-display-area {
+            margin-top: 10px;
+        }
+        .pin-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 3px;
+        }
+        .pin {
+            width: 20px;
+            height: 30px;
+            background-color: white;
+            border: 1px solid #555;
+            border-radius: 40% 40% 5px 5px;
+            margin: 0 3px;
+            position: relative;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .pin::before { /* Pin head */
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 6px;
+            background-color: red;
+            border-radius: 50%;
+        }
+
+        .pin.down {
+            background-color: #888; /* Grey out fallen pins */
+            transform: rotate(90deg) translateY(5px);
+            opacity: 0.5;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Classy Bowling Simulator</h1>
+
+    <!-- Setup Area -->
+    <div id="setup-area">
+        <h2>Setup Game</h2>
+        <div>
+            <label for="player-name">Player Name:</label>
+            <input type="text" id="player-name" placeholder="Enter name">
+            <button id="add-player-button">Add Player</button>
+        </div>
+        <ul id="player-list"></ul>
+        <button id="start-game-button" disabled>Start Game</button>
+    </div>
+
+    <!-- Game Area -->
+    <div id="game-area">
+        <table id="scoreboard">
+            <thead>
+                <tr id="header-row">
+                    <th class="player-name-col">Player</th>
+                    <!-- Frame headers will be added by JS -->
+                    <th class="total-score-col">Total</th>
+                </tr>
+            </thead>
+            <tbody id="scoreboard-body">
+                <!-- Player rows will be added by JS -->
+            </tbody>
+        </table>
+
+         <div id="controls-area">
+             <button id="throw-button" disabled>Throw Ball</button>
+              <div id="pin-display-area">
+                  <h3>Pins Standing: <span id="pins-standing-count">10</span></h3>
+                  <div id="pin-display">
+                      <div class="pin-row">
+                          <div class="pin" id="pin-7"></div>
+                          <div class="pin" id="pin-8"></div>
+                          <div class="pin" id="pin-9"></div>
+                          <div class="pin" id="pin-10"></div>
+                      </div>
+                       <div class="pin-row">
+                          <div class="pin" id="pin-4"></div>
+                          <div class="pin" id="pin-5"></div>
+                          <div class="pin" id="pin-6"></div>
+                      </div>
+                       <div class="pin-row">
+                          <div class="pin" id="pin-2"></div>
+                          <div class="pin" id="pin-3"></div>
+                      </div>
+                       <div class="pin-row">
+                          <div class="pin" id="pin-1"></div>
+                      </div>
+                  </div>
+             </div>
+             <p id="status-message">Add players and start the game.</p>
+         </div>
+    </div>
+
+
+    <script>
+        const MAX_PINS = 10;
+        const MAX_FRAMES = 10;
+
+        let players = [];
+        let currentPlayerIndex = 0;
+        let currentFrame = 1;
+        let currentBall = 1;
+        let gameStarted = false;
+        let gameOver = false;
+        let pinsStanding = MAX_PINS;
+        let pinElements = {}; // To store references to pin DOM elements
+
+        // DOM Elements
+        const playerNameInput = document.getElementById('player-name');
+        const addPlayerButton = document.getElementById('add-player-button');
+        const playerList = document.getElementById('player-list');
+        const startGameButton = document.getElementById('start-game-button');
+        const setupArea = document.getElementById('setup-area');
+        const gameArea = document.getElementById('game-area');
+        const scoreboardHeader = document.getElementById('header-row');
+        const scoreboardBody = document.getElementById('scoreboard-body');
+        const throwButton = document.getElementById('throw-button');
+        const statusMessage = document.getElementById('status-message');
+        const pinDisplay = document.getElementById('pin-display');
+        const pinsStandingCount = document.getElementById('pins-standing-count');
+
+
+        // --- Setup Phase ---
+
+        addPlayerButton.addEventListener('click', addPlayer);
+        playerNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addPlayer();
+            }
+        });
+        startGameButton.addEventListener('click', startGame);
+
+        function addPlayer() {
+            const name = playerNameInput.value.trim();
+            if (name && players.length < 6) { // Limit players for readability
+                players.push({
+                    name: name,
+                    frames: Array(MAX_FRAMES).fill(null).map(() => ({ rolls: [], score: null, displayScore: '' })),
+                    totalScore: 0
+                });
+                renderPlayerList();
+                playerNameInput.value = '';
+                playerNameInput.focus();
+                if (players.length > 0) {
+                    startGameButton.disabled = false;
+                }
+            } else if (name && players.length >= 6) {
+                 alert("Maximum 6 players allowed.");
+            }
+        }
+
+        function renderPlayerList() {
+            playerList.innerHTML = '';
+            players.forEach(player => {
+                const li = document.createElement('li');
+                li.textContent = player.name;
+                playerList.appendChild(li);
+            });
+        }
+
+        // --- Game Initialization ---
+
+        function initializePins() {
+             // Store references to pin elements
+            const pinDivs = pinDisplay.querySelectorAll('.pin');
+            pinDivs.forEach(pin => {
+                pinElements[pin.id] = pin;
+                pin.classList.remove('down'); // Reset visual state
+            });
+            pinsStanding = MAX_PINS;
+            pinsStandingCount.textContent = pinsStanding;
+        }
+
+
+        function startGame() {
+            if (players.length === 0) return;
+
+            gameStarted = true;
+            gameOver = false;
+            currentPlayerIndex = 0;
+            currentFrame = 1;
+            currentBall = 1;
+
+            setupArea.style.display = 'none';
+            gameArea.style.display = 'block';
+
+            initializeScoreboard();
+            initializePins(); // Setup pins for the first throw
+            updateStatus();
+            highlightCurrentFrame();
+            throwButton.disabled = false;
+        }
+
+        function initializeScoreboard() {
+            // Create Frame Headers
+            scoreboardHeader.innerHTML = '<th class="player-name-col">Player</th>'; // Reset headers
+            for (let i = 1; i <= MAX_FRAMES; i++) {
+                const th = document.createElement('th');
+                th.classList.add('frame-col');
+                th.textContent = i;
+                scoreboardHeader.appendChild(th);
+            }
+            const totalTh = document.createElement('th');
+            totalTh.classList.add('total-score-col');
+            totalTh.textContent = 'Total';
+            scoreboardHeader.appendChild(totalTh);
+
+
+            // Create Player Rows
+            scoreboardBody.innerHTML = ''; // Clear existing rows
+            players.forEach((player, index) => {
+                const row = document.createElement('tr');
+                row.id = `player-${index}`;
+                row.innerHTML = `
+                    <td class="player-name-col">${player.name}</td>
+                    ${Array(MAX_FRAMES).fill(0).map((_, i) => `
+                        <td class="frame-col frame-${i+1}">
+                           <div class="frame-content">
+                                <div class="frame-rolls">
+                                    <span class="roll-box roll1"></span>
+                                    <span class="roll-box roll2"></span>
+                                    ${i === MAX_FRAMES - 1 ? '<span class="roll-box roll3 tenth-extra"></span>' : ''}
+                                </div>
+                                <div class="frame-score"></div>
+                           </div>
+                        </td>
+                    `).join('')}
+                    <td class="total-score-col player-total-score">0</td>
+                `;
+                scoreboardBody.appendChild(row);
+            });
+        }
+
+        // --- Game Logic ---
+
+        throwButton.addEventListener('click', handleThrow);
+
+        function handleThrow() {
+            if (gameOver || !gameStarted) return;
+
+            const pinsHit = simulateThrow(pinsStanding);
+            const currentPlayer = players[currentPlayerIndex];
+            const frameIndex = currentFrame - 1;
+            const currentFrameData = currentPlayer.frames[frameIndex];
+
+            // Record the roll
+            let rollDisplay = pinsHit.toString();
+            if (currentBall === 1 && pinsHit === MAX_PINS && currentFrame !== MAX_FRAMES) {
+                rollDisplay = 'X'; // Strike (except 10th frame first ball)
+                 pinsStanding = 0; // All pins down
+            } else if (currentBall === 2 && pinsStanding - pinsHit === 0 && currentFrameData.rolls.length === 1) {
+                rollDisplay = '/'; // Spare
+                 pinsStanding = 0; // All pins down
+            } else if (pinsHit === 0) {
+                rollDisplay = '-'; // Gutter
+                 pinsStanding = pinsStanding; // No change
+            } else {
+                 pinsStanding -= pinsHit; // Update pins standing
+            }
+
+
+             // Special handling for 10th frame symbols
+            if (currentFrame === MAX_FRAMES) {
+                 if (pinsHit === MAX_PINS) rollDisplay = 'X';
+                 else if (currentFrameData.rolls.length === 1 && currentFrameData.rolls[0] + pinsHit === MAX_PINS) rollDisplay = '/';
+            }
+
+
+            currentFrameData.rolls.push(pinsHit);
+            updateRollDisplay(currentPlayerIndex, frameIndex, currentBall, rollDisplay);
+            updatePinDisplay(pinsHit); // Update visual pins
+
+
+            // Calculate scores after every roll
+            calculateAllScores();
+            updateScoreboardDisplay();
+
+
+            // Determine next state (next ball, frame, or player)
+            advanceTurn(pinsHit);
+            updateStatus();
+            highlightCurrentFrame();
+
+            // Check for game over
+            if (gameOver) {
+                endGame();
+            }
+        }
+
+        function simulateThrow(standing) {
+            // Simulate knocking down pins that are currently standing
+            return Math.floor(Math.random() * (standing + 1));
+        }
+
+         function updatePinDisplay(pinsJustHit) {
+            pinsStandingCount.textContent = pinsStanding;
+
+            let hitCount = 0;
+            const pinIds = Object.keys(pinElements); // ["pin-7", "pin-8", ...]
+
+            // Simple random assignment for visualization - not physically accurate layout matching
+             for (const pinId of pinIds) {
+                 const pin = pinElements[pinId];
+                 if (!pin.classList.contains('down')) { // If the pin is standing
+                     // Randomly decide if this standing pin falls, until we match pinsJustHit
+                     if (hitCount < pinsJustHit && Math.random() < 0.6) { // Adjust probability as needed
+                         pin.classList.add('down');
+                         hitCount++;
+                     }
+                 }
+             }
+
+             // If random assignment didn't hit enough, force more down
+             let pinsStillStanding = pinIds.filter(id => !pinElements[id].classList.contains('down'));
+             while(hitCount < pinsJustHit && pinsStillStanding.length > 0) {
+                 const randomIndex = Math.floor(Math.random() * pinsStillStanding.length);
+                 const pinToKnock = pinElements[pinsStillStanding[randomIndex]];
+                 pinToKnock.classList.add('down');
+                 hitCount++;
+                 pinsStillStanding.splice(randomIndex, 1); // Remove from available standing pins
+             }
+
+        }
+
+
+        function updateRollDisplay(playerIdx, frameIdx, ballNum, display) {
+            const playerRow = document.getElementById(`player-${playerIdx}`);
+            const frameCell = playerRow.querySelector(`.frame-${frameIdx + 1}`);
+            let rollBox;
+             if (frameIdx === MAX_FRAMES - 1 && ballNum === 3) { // 10th frame, 3rd ball
+                 rollBox = frameCell.querySelector('.roll3');
+             } else if (ballNum === 2) {
+                 rollBox = frameCell.querySelector('.roll2');
+             } else { // Ball 1
+                  rollBox = frameCell.querySelector('.roll1');
+             }
+
+             if (rollBox) {
+                 rollBox.textContent = display;
+                  // Add classes for styling maybe?
+                  rollBox.classList.remove('strike', 'spare'); // Clear previous
+                  if (display === 'X') rollBox.classList.add('strike');
+                  if (display === '/') rollBox.classList.add('spare');
+             }
+        }
+
+        function advanceTurn(pinsHit) {
+            const currentPlayer = players[currentPlayerIndex];
+            const frameIndex = currentFrame - 1;
+            const isStrike = currentBall === 1 && pinsHit === MAX_PINS;
+             const isSpare = currentBall === 2 && currentPlayer.frames[frameIndex].rolls.length === 2 && (currentPlayer.frames[frameIndex].rolls[0] + pinsHit === MAX_PINS);
+
+            // --- 10th Frame Logic ---
+            if (currentFrame === MAX_FRAMES) {
+                const rolls = currentPlayer.frames[frameIndex].rolls;
+                const ball1 = rolls[0] !== undefined ? rolls[0] : -1;
+                const ball2 = rolls[1] !== undefined ? rolls[1] : -1;
+
+                if (currentBall === 1) {
+                    if (isStrike) { // Strike on first ball
+                        currentBall = 2;
+                        resetPinsForFrame(); // Reset for 2nd ball
+                    } else {
+                        currentBall = 2;
+                         // Pins remain as they are
+                    }
+                } else if (currentBall === 2) {
+                    if (ball1 === MAX_PINS || (ball1 + ball2 === MAX_PINS)) { // Got a strike or spare, needs 3rd ball
+                        currentBall = 3;
+                        // Reset pins ONLY if the second ball was a strike or cleared remaining after first strike
+                        if (ball2 === MAX_PINS || (ball1 === MAX_PINS && ball2 < MAX_PINS)) {
+                             resetPinsForFrame();
+                        }
+                        // If it was a spare (10 on 2 balls), pins remain down before 3rd throw. If they cleared pins with 2nd ball after first strike, reset pins.
+                         else if (ball1 + ball2 === MAX_PINS) {
+                            resetPinsForFrame(); // Reset after spare clearance
+                        }
+                    } else { // Open frame in the 10th after 2 balls
+                        moveToNextPlayer();
+                    }
+                } else if (currentBall === 3) {
+                    moveToNextPlayer(); // Always move after 3rd ball
+                }
+            }
+            // --- Frames 1-9 Logic ---
+            else {
+                if (isStrike) {
+                    moveToNextPlayer(); // Strike moves immediately
+                } else if (currentBall === 1) {
+                    currentBall = 2; // Move to second ball
+                     // Pins remain as they are
+                } else { // After second ball (or gutter on first)
+                    moveToNextPlayer();
+                }
+            }
+        }
+
+        function moveToNextPlayer() {
+            currentPlayerIndex++;
+            if (currentPlayerIndex >= players.length) {
+                currentPlayerIndex = 0;
+                currentFrame++;
+            }
+
+            currentBall = 1; // Reset ball number for the new turn
+
+            if (currentFrame > MAX_FRAMES) {
+                gameOver = true;
+            } else {
+                resetPinsForFrame(); // Set up pins for the next player/frame
+            }
+        }
+
+        function resetPinsForFrame() {
+             initializePins(); // Resets count and visual pins
+        }
+
+        // --- Scoring ---
+
+        function calculateAllScores() {
+            players.forEach(player => {
+                let cumulativeScore = 0;
+                for (let i = 0; i < MAX_FRAMES; i++) {
+                    const frame = player.frames[i];
+                    let frameScore = calculateFrameScore(player, i);
+
+                    if (frameScore !== null) { // Only update if score can be fully calculated
+                        cumulativeScore += frameScore;
+                        frame.score = cumulativeScore;
+                        frame.displayScore = cumulativeScore.toString();
+                    } else {
+                        frame.score = null; // Mark as incomplete
+                        frame.displayScore = ''; // Don't show partial score yet
+                    }
+                }
+                player.totalScore = cumulativeScore; // Update total based on latest complete frame
+            });
+        }
+
+        function getRoll(player, frameIndex, rollIndex) {
+            // Helper to safely get roll values, considering future frames for bonuses
+            if (frameIndex >= MAX_FRAMES) return null; // Out of bounds
+
+            const frame = player.frames[frameIndex];
+             if (rollIndex < frame.rolls.length) {
+                 return frame.rolls[rollIndex];
+             }
+
+            // If roll doesn't exist in this frame, check next frame(s) if needed
+            if (frameIndex + 1 < MAX_FRAMES) {
+                 // Need the first roll of the next frame
+                 const nextFrame = player.frames[frameIndex + 1];
+                 if (nextFrame.rolls.length > 0) {
+                    // If current frame had 1 roll (strike), rollIndex 1 means next frame's 1st roll
+                    if (frame.rolls.length === 1 && rollIndex === 1) return nextFrame.rolls[0];
+                     // Need second bonus roll after strike...
+                     if (frame.rolls.length === 1 && rollIndex === 2) {
+                         // If next frame was also a strike, need frame after that
+                         if (nextFrame.rolls.length === 1 && nextFrame.rolls[0] === MAX_PINS) {
+                              if (frameIndex + 2 < MAX_FRAMES && player.frames[frameIndex + 2].rolls.length > 0) {
+                                  return player.frames[frameIndex + 2].rolls[0];
+                              }
+                         } else if (nextFrame.rolls.length >= 2) { // Next frame had 2 rolls
+                              return nextFrame.rolls[1];
+                         }
+                     }
+                 }
+            }
+            return null; // Roll data not available yet
+        }
+
+
+        function calculateFrameScore(player, frameIndex) {
+            const frame = player.frames[frameIndex];
+            const rolls = frame.rolls;
+            if (rolls.length === 0) return null; // Frame not played yet
+
+            const roll1 = rolls[0];
+            const roll2 = rolls.length > 1 ? rolls[1] : null;
+            const roll3 = rolls.length > 2 ? rolls[2] : null; // Only for 10th frame
+
+            let baseScore = 0;
+            let bonusScore = 0;
+            let isComplete = false; // Can the score be finalized?
+
+             // --- 10th Frame Calculation ---
+             if (frameIndex === MAX_FRAMES - 1) {
+                 baseScore = roll1 + (roll2 !== null ? roll2 : 0) + (roll3 !== null ? roll3 : 0);
+                 // Check if 10th frame is finished
+                  if (roll1 === MAX_PINS || (roll1 + (roll2 || 0) === MAX_PINS)) { // Strike or spare needs 3 balls
+                      isComplete = rolls.length === 3;
+                  } else { // Open frame needs 2 balls
+                      isComplete = rolls.length === 2;
+                  }
+                  return isComplete ? baseScore : null;
+             }
+
+            // --- Frames 1-9 Calculation ---
+            const isStrike = roll1 === MAX_PINS;
+            const isSpare = !isStrike && roll1 + (roll2 || 0) === MAX_PINS;
+
+            if (isStrike) {
+                baseScore = MAX_PINS;
+                const bonus1 = getRoll(player, frameIndex + 1, 0); // Next frame, first roll
+                const bonus2 = getRoll(player, frameIndex + 1, 1); // Next frame, second roll OR frame after next, first roll if next is strike
+                if (bonus1 !== null && bonus2 !== null) {
+                    bonusScore = bonus1 + bonus2;
+                    isComplete = true;
+                }
+            } else if (isSpare) {
+                 if (roll2 === null) return null; // Need second ball to confirm spare
+                baseScore = MAX_PINS;
+                const bonus1 = getRoll(player, frameIndex + 1, 0); // Next frame, first roll
+                if (bonus1 !== null) {
+                    bonusScore = bonus1;
+                    isComplete = true;
+                }
+            } else { // Open frame
+                 if (roll2 === null) return null; // Need second ball to complete open frame
+                baseScore = roll1 + roll2;
+                isComplete = true;
+            }
+
+            return isComplete ? (baseScore + bonusScore) : null;
+        }
+
+
+        // --- UI Updates ---
+
+        function updateScoreboardDisplay() {
+            players.forEach((player, index) => {
+                const playerRow = document.getElementById(`player-${index}`);
+                for (let i = 0; i < MAX_FRAMES; i++) {
+                    const frameCell = playerRow.querySelector(`.frame-${i + 1} .frame-score`);
+                    if (player.frames[i].score !== null) {
+                        frameCell.textContent = player.frames[i].displayScore;
+                    } else {
+                         frameCell.textContent = ''; // Clear if incomplete
+                    }
+                }
+                const totalCell = playerRow.querySelector('.player-total-score');
+                totalCell.textContent = player.totalScore;
+            });
+        }
+
+        function updateStatus() {
+            if (gameOver) {
+                statusMessage.textContent = `Game Over! ${findWinner()}`;
+                throwButton.disabled = true;
+            } else if (gameStarted) {
+                 const currentPlayerName = players[currentPlayerIndex].name;
+                 statusMessage.textContent = `Frame ${currentFrame}, Ball ${currentBall}. Player: ${currentPlayerName}'s turn.`;
+            } else {
+                 statusMessage.textContent = "Add players and start the game.";
+            }
+        }
+
+        function highlightCurrentFrame() {
+            // Remove previous highlights
+            document.querySelectorAll('.current-player').forEach(row => row.classList.remove('current-player'));
+            document.querySelectorAll('.current-frame').forEach(cell => cell.classList.remove('current-frame'));
+
+            if (!gameOver && gameStarted) {
+                const playerRow = document.getElementById(`player-${currentPlayerIndex}`);
+                if (playerRow) {
+                    playerRow.classList.add('current-player');
+                    const frameCell = playerRow.querySelector(`.frame-${currentFrame}`);
+                    if (frameCell) {
+                        frameCell.classList.add('current-frame');
+                    }
+                }
+            }
+        }
+
+        // --- Game End ---
+
+        function endGame() {
+            gameOver = true;
+            throwButton.disabled = true;
+            updateStatus();
+             // Remove final highlights
+             document.querySelectorAll('.current-player').forEach(row => row.classList.remove('current-player'));
+            document.querySelectorAll('.current-frame').forEach(cell => cell.classList.remove('current-frame'));
+            console.log("Game Over!");
+            console.log("Final Scores:", players);
+        }
+
+        function findWinner() {
+             if (!players || players.length === 0) return "No players.";
+
+             // Ensure all scores are calculated finally
+             calculateAllScores();
+             updateScoreboardDisplay(); // Update display one last time
+
+             let winner = players[0];
+             let highScore = players[0].totalScore;
+             let isTie = false;
+
+             for (let i = 1; i < players.length; i++) {
+                 if (players[i].totalScore > highScore) {
+                     highScore = players[i].totalScore;
+                     winner = players[i];
+                     isTie = false;
+                 } else if (players[i].totalScore === highScore) {
+                     isTie = true;
+                 }
+             }
+
+             if (isTie) {
+                  // Check if the tie involves the current winner
+                  const tiedPlayers = players.filter(p => p.totalScore === highScore);
+                  if (tiedPlayers.length > 1) {
+                     return `It's a tie between ${tiedPlayers.map(p => p.name).join(' and ')} with a score of ${highScore}!`;
+                  }
+             }
+             return `${winner.name} wins with a score of ${highScore}!`;
+        }
+
+        // Initial setup
+        initializePins(); // Show pins initially even before game starts
+
+    </script>
+
+</body>
+</html>
